@@ -1,4 +1,7 @@
-﻿namespace Crypto.Core;
+﻿using System.Text.Json;
+using Crypto.Core.ApiResult.Public;
+
+namespace Crypto.Core.Methods;
 
 public class PublicMethods
 {
@@ -7,17 +10,21 @@ public class PublicMethods
   {
     utilities = new Utilities(apiPath, checkCertificate);
   }
-  public string GetServerTime()
+  public ServerTime? GetServerTime()
   {
     var endpoint = PublicEndpoints.ServerTime;
-    return utilities.MakeRequest("GET", endpoint);
+    string result = utilities.MakeRequest("GET", endpoint);
+
+    return JsonSerializer.Deserialize<ServerTime>(result);
   }
 
 
-  public string GetSystemStatus()
+  public SystemStatus? GetSystemStatus()
   {
     var endpoint = PublicEndpoints.SystemStatus;
-    return utilities.MakeRequest("GET", endpoint);
+    string result = utilities.MakeRequest("GET", endpoint);
+
+    return JsonSerializer.Deserialize<SystemStatus>(result);
   }
 
   public string GetAssetInfo(string symbol)

@@ -8,8 +8,8 @@ namespace Crypto.Core;
 public class Utilities
 {
   private string apiPath { get; set; }
-  private string apiPublicKey { get; set; }
-  private string apiPrivateKey { get; set; }
+  private string? apiPublicKey { get; set; }
+  private string? apiPrivateKey { get; set; }
   private bool checkCertificate { get; set; }
 
   public Utilities(string apiPath, bool checkCertificate)

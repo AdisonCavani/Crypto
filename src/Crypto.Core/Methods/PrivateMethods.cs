@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Crypto.Core;
+namespace Crypto.Core.Methods;
 
 public class PrivateMethods
 {
