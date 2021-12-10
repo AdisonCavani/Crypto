@@ -7,10 +7,15 @@
     <Nullable>enable</Nullable>
     <LangVersion>10.0</LangVersion>
     <Platforms>AnyCPU</Platforms>
+    <UserSecretsId>2956bd92-2282-4692-a7ff-04e0037c10b1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Crypto.Core\Crypto.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
   </ItemGroup>
 
 </Project>
