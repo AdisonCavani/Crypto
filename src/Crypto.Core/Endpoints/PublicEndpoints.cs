@@ -20,7 +20,7 @@ public static class PublicEndpoints
     /// <summary>
     /// Get tradable asset pairs
     /// </summary>
-    public const string AssetPairs = "/public/Assets";
+    public const string AssetPairs = "/public/AssetPairs";
 
     /// <summary>
     /// Get Ticker Information
