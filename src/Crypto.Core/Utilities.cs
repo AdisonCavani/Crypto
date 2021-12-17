@@ -2,25 +2,26 @@
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using Crypto.Core.Settings;
+using Crypto.Core.Methods.HttpRequest;
 
 namespace Crypto.Core;
 
 public class Utilities
 {
-    private string apiPath { get; set; }
+    private string apiPath => ApiSettings.apiPath;
     private string? apiPublicKey { get; set; }
     private string? apiPrivateKey { get; set; }
+
     private bool checkCertificate { get; set; }
 
-    public Utilities(string apiPath, bool checkCertificate)
+    public Utilities()
     {
-        this.apiPath = apiPath;
-        this.checkCertificate = checkCertificate;
+
     }
 
-    public Utilities(string apiPath, string apiPublicKey, string apiPrivateKey, bool checkCertificate)
+    public Utilities(string apiPublicKey, string apiPrivateKey, bool checkCertificate)
     {
-        this.apiPath = apiPath;
         this.apiPublicKey = apiPublicKey;
         this.apiPrivateKey = apiPrivateKey;
         this.checkCertificate = checkCertificate;
@@ -66,15 +67,12 @@ public class Utilities
     /// <param name="postUrl"></param>
     /// <param name="postBody"></param>
     /// <returns></returns>
-    public string MakeRequest(string requestMethod, string endpoint, string postUrl = "", string postBody = "")
+    public string MakeRequestOld(string requestMethod, string endpoint, string postUrl = "", string postBody = "")
     {
-
         if (!checkCertificate)
-        {
             ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
-        }
+
         using (var client = new WebClient())
-        //using (var client = new HttpClient())
         {
             var url = apiPath + endpoint + "?" + postUrl;
 
@@ -83,8 +81,6 @@ public class Utilities
             {
                 var postData = postUrl + postBody;
                 var signature = SignMessage(endpoint, postData);
-                //client.DefaultRequestHeaders.Add("APIKey", apiPublicKey);
-                //client.DefaultRequestHeaders.Add("Authent", signature);
                 client.Headers.Add("APIKey", apiPublicKey);
                 client.Headers.Add("Authent", signature);
             }
@@ -98,19 +94,54 @@ public class Utilities
                     string[] splitPair = pair.Split('=');
                     parameters.Add(splitPair[0], splitPair[1]);
                 }
-
-                //StringContent content = new();
-
                 var response = client.UploadValues(url, "POST", parameters);
-                // var response = client.PostAsync(url, content);
-
                 return Encoding.UTF8.GetString(response);
-                //return response.Result.ToString();
             }
             else
             {
-                //return client.GetAsync(url).Result.ToString();
                 return client.DownloadString(url);
+            }
+        }
+    }
+
+    public async Task<string> MakeRequest(string requestMethod, string endpoint, string postUrl = "", string postBody = "")
+    {
+        if (!checkCertificate)
+            ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+
+        using (var client = new HttpClient())
+        {
+            var url = apiPath + endpoint + "?" + postUrl;
+
+            // Create authentication headers
+            if (apiPublicKey != null && apiPrivateKey != null)
+            {
+                var postData = postUrl + postBody;
+                var signature = SignMessage(endpoint, postData);
+                client.DefaultRequestHeaders.Add("APIKey", apiPublicKey);
+                client.DefaultRequestHeaders.Add("Authent", signature);
+            }
+
+            if (requestMethod == "POST" && postBody.Length > 0)
+            {
+                NameValueCollection parameters = new NameValueCollection();
+
+                string[] bodyArray = postBody.Split('&');
+                foreach (string pair in bodyArray)
+                {
+                    string[] splitPair = pair.Split('=');
+                    parameters.Add(splitPair[0], splitPair[1]);
+                }
+
+                StringContent content = new();
+
+                var response = client.PostAsync(url, parameters);
+
+                return Encoding.UTF8.GetString(response);
+            }
+            else
+            {
+                return await client.GetStringAsync(url);
             }
         }
     }
