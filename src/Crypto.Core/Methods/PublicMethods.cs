@@ -1,5 +1,5 @@
-﻿using Crypto.Core.Settings;
-using Crypto.Core.ApiResult.Public;
+﻿using Crypto.Core.ApiResult.Public;
+using Crypto.Core.Settings;
 using System.Text.Json;
 
 namespace Crypto.Core.Methods;
@@ -14,9 +14,9 @@ public class PublicMethods
     public ServerTime? GetServerTime()
     {
         var endpoint = PublicEndpoints.ServerTime;
-        Task<string> result = Task.Run(async () => await utilities.MakeRequest("GET", endpoint));
+        var result = utilities.MakeRequest("GET", endpoint);
 
-        return JsonSerializer.Deserialize<ServerTime>(result.Result);
+        return JsonSerializer.Deserialize<ServerTime>(result);
     }
 
 
@@ -91,4 +91,21 @@ public class PublicMethods
     //     var endpoint = PublicEndpoints.Spread;
     //     return utilities.MakeRequest("GET", endpoint);
     // }
+}
+
+public class NewPublicMethods
+{
+    public static async Task<ServerTime> GetServerTime()
+    {
+        var endpoint = PublicEndpoints.ServerTime;
+        var url = ApiSettings.ApiPath + endpoint;
+
+        using (HttpResponseMessage response = await ApiHelper.ApiClient.GetAsync(url))
+        {
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadAsAsync<ServerTime>();
+            else
+                throw new Exception(response.ReasonPhrase);
+        }
+    }
 }

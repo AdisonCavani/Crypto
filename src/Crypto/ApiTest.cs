@@ -1,4 +1,5 @@
-﻿using Crypto.Core.Methods;
+﻿using Crypto.Core;
+using Crypto.Core.Methods;
 using Microsoft.Extensions.Configuration;
 
 namespace Crypto;
@@ -10,6 +11,10 @@ public class ApiTest
         var configuration = new ConfigurationBuilder()
         .AddUserSecrets<ApiTest>()
         .Build();
+
+        // New API
+        ApiHelper.InitializeClient();
+        // End of new API
 
         var client = new KrakenClient();
 
